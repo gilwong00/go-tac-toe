@@ -22,7 +22,7 @@ const (
 func main() {
 	state := gameState{}
 	state.Player = cross
-	// result := noWinner
+	result := noWinner
 
 	for {
 		fmt.Printf("Current player: %v\n", printPlayer(state.currentPlayer()))
@@ -51,18 +51,22 @@ func main() {
 
 		fmt.Println()
 
-		// move this out of the loop when implemented winner check
-		state.drawBoard()
+		// check for winner
+		result = state.computeWinner()
+		if result != noWinner {
+			break
+		}
 	}
 
-	// switch result {
-	// case winnerX:
-	// 	fmt.Printf("X won the game!\n")
-	// case winnerO:
-	// 	fmt.Printf("O won the game!\n")
-	// case draw:
-	// 	fmt.Printf("the game has ended with a draw!\n")
-	// }
+	state.drawBoard()
+	switch result {
+	case winnerX:
+		fmt.Printf("X won the game!\n")
+	case winnerO:
+		fmt.Printf("O won the game!\n")
+	case draw:
+		fmt.Printf("DRAW!\n")
+	}
 }
 
 func printPlayer(player int) string {
@@ -129,4 +133,8 @@ func (s *gameState) updateBoard(row int, column int) error {
 	}
 	s.Board[row][column] = int(s.Player)
 	return nil
+}
+
+func (s *gameState) computeWinner() int {
+	return noWinner
 }
