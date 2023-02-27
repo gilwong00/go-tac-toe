@@ -25,14 +25,13 @@ func main() {
 	// result := noWinner
 
 	for {
-		fmt.Printf("next player to place a mark is: %v\n", printPlayer(state.whosNext()))
+		fmt.Printf("Current player: %v\n", printPlayer(state.currentPlayer()))
 		state.drawBoard()
-		fmt.Printf("where to place a %v? (input row then column, separated by space)\n> ", printPlayer(state.whosNext()))
+		fmt.Printf("How to place a %v? (input row then column, separated by space)\n> ", printPlayer(state.currentPlayer()))
 
 		for {
 			var row, column int
 			fmt.Scan(&row, &column)
-
 			err := state.updateBoard(row-1, column-1) // -1 so coordinate starts at (1,1) instead of (0,0)
 
 			// if valid position was entered, break out from the input loop
@@ -47,13 +46,12 @@ func main() {
 
 		// todo check if anyone has won the game
 
-		// 4. if no one has won in this turn, go on for next turn and continue the game loop
+		// if no one has won move to the next player and continue the game loop
 		state.nextTurn()
 
 		fmt.Println()
 
-		// remove when implement winner check
-
+		// move this out of the loop when implemented winner check
 		state.drawBoard()
 	}
 
@@ -110,7 +108,7 @@ func (s *gameState) drawBoard() {
 	}
 }
 
-func (state *gameState) whosNext() int {
+func (state *gameState) currentPlayer() int {
 	return state.Player
 }
 
@@ -124,7 +122,7 @@ func (s *gameState) nextTurn() {
 
 func (s *gameState) updateBoard(row int, column int) error {
 	if row < 0 || column < 0 || row >= len(s.Board) || column >= len(s.Board[row]) {
-		return fmt.Errorf("position (%d,%d) is out of bound.", row, column)
+		return fmt.Errorf("position (%d,%d) is out of bounds.", row, column)
 	}
 	if s.Board[row][column] != none {
 		return fmt.Errorf("position (%d,%d) has already been played.", row, column)
