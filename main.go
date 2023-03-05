@@ -44,18 +44,16 @@ func main() {
 			fmt.Printf("please re-enter a position:\n> ")
 		}
 
-		// todo check if anyone has won the game
-
-		// if no one has won move to the next player and continue the game loop
-		state.nextTurn()
-
-		fmt.Println()
-
 		// check for winner
 		result = state.computeWinner()
 		if result != noWinner {
 			break
 		}
+
+		// if no one has won move to the next player and continue the game loop
+		state.nextTurn()
+
+		fmt.Println()
 	}
 
 	state.drawBoard()
@@ -82,14 +80,7 @@ func printPlayer(player int) string {
 	}
 }
 
-// func clearScreen() {
-// 	c := exec.Command("cmd", "/c", "cls")
-// 	c.Stdout = os.Stdout
-// 	c.Run()
-// }
-
 func (s *gameState) drawBoard() {
-
 	for i, row := range s.Board {
 		for j, column := range row {
 			fmt.Print(" ")
@@ -135,6 +126,56 @@ func (s *gameState) updateBoard(row int, column int) error {
 	return nil
 }
 
-func (s *gameState) computeWinner() int {
+func (s *gameState) validateSection(l int, startingRow int, startingColumn int, deltaRow int, deltaColumn int) int {
+	var lastSquare int = s.Board[startingRow][startingColumn]
+	row, column := startingRow+deltaRow, startingColumn+deltaColumn
+
+	for row >= 0 && column >= 0 && row < l && column < l {
+		if s.Board[row][column] == none {
+			return noWinner
+		}
+
+		if lastSquare != s.Board[row][column] {
+			return noWinner
+		}
+
+		lastSquare = s.Board[row][column]
+		row, column = row+deltaRow, column+deltaColumn
+	}
+
+	if lastSquare == cross {
+		return winnerX
+	} else if lastSquare == circle {
+		return winnerO
+	}
 	return noWinner
+}
+
+func (s *gameState) computeWinner() int {
+	boardLen := len(s.Board)
+
+	// check horizontals rows
+	for row := 0; row < boardLen; row++ {
+		if result := s.validateSection(boardLen, row, 0, 0, 1); result != noWinner {
+			return result
+		}
+	}
+
+	// check vertical columns
+	for column := 0; column < boardLen; column++ {
+		if result := s.validateSection(boardLen, 0, column, 1, 0); result != noWinner {
+			return result
+		}
+	}
+
+	// draw case
+	for _, row := range s.Board {
+		for _, square := range row {
+			if square == 0 {
+				return noWinner
+			}
+		}
+	}
+
+	return draw
 }
