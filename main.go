@@ -33,26 +33,21 @@ func main() {
 			var row, column int
 			fmt.Scan(&row, &column)
 			err := state.updateBoard(row-1, column-1) // -1 so coordinate starts at (1,1) instead of (0,0)
-
 			// if valid position was entered, break out from the input loop
 			if err == nil {
 				break
 			}
-
 			// if an invalid position was entered, prompt the player to re-enter another position
 			fmt.Println(err)
 			fmt.Printf("please re-enter a position:\n> ")
 		}
-
 		// check for winner
 		result = state.computeWinner()
 		if result != noWinner {
 			break
 		}
-
 		// if no one has won move to the next player and continue the game loop
 		state.nextTurn()
-
 		fmt.Println()
 	}
 
@@ -134,11 +129,9 @@ func (s *gameState) validateSection(l int, startingRow int, startingColumn int, 
 		if s.Board[row][column] == none {
 			return noWinner
 		}
-
 		if lastSquare != s.Board[row][column] {
 			return noWinner
 		}
-
 		lastSquare = s.Board[row][column]
 		row, column = row+deltaRow, column+deltaColumn
 	}
@@ -152,22 +145,27 @@ func (s *gameState) validateSection(l int, startingRow int, startingColumn int, 
 }
 
 func (s *gameState) computeWinner() int {
-	boardLen := len(s.Board)
-
+	l := len(s.Board)
 	// check horizontals rows
-	for row := 0; row < boardLen; row++ {
-		if result := s.validateSection(boardLen, row, 0, 0, 1); result != noWinner {
+	for row := 0; row < l; row++ {
+		if result := s.validateSection(l, row, 0, 0, 1); result != noWinner {
 			return result
 		}
 	}
-
-	// check vertical columns
-	for column := 0; column < boardLen; column++ {
-		if result := s.validateSection(boardLen, 0, column, 1, 0); result != noWinner {
+	// // check vertical columns
+	for column := 0; column < l; column++ {
+		if result := s.validateSection(l, 0, column, 1, 0); result != noWinner {
 			return result
 		}
 	}
-
+	// left diagonal
+	if result := s.validateSection(l, 0, 0, 1, 1); result != noWinner {
+		return result
+	}
+	// right diagonal
+	if result := s.validateSection(l, 0, l-1, 1, -1); result != noWinner {
+		return result
+	}
 	// draw case
 	for _, row := range s.Board {
 		for _, square := range row {
@@ -176,6 +174,5 @@ func (s *gameState) computeWinner() int {
 			}
 		}
 	}
-
 	return draw
 }
